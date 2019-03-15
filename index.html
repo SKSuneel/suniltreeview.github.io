@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+    
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>TREE VIEW WITH JSON DATA</title>
+        <!--<link rel="stylesheet" href="style.css">-->
+        <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+        <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+        <script>
+
+        var app= angular.module('myApp', []);
+        app.controller('myAppController',function($scope,$http) {
+            $http.get("level1.json")
+			.then(function(response) 
+			{
+				$scope.data = response.data;
+                window.level1 = response.data;
+			});
+            $http.get("level2.json")
+			.then(function(response) 
+			{
+				$scope.l2data = response.data;
+                window.level2 = response.data;
+			});
+			$scope.toggleChildren = function(data) {
+				data.childrenVisible = !data.childrenVisible;
+				data.folderClass = data.childrenVisible?"fa-folder-open":"fa-folder";
+                data.folderClass = data.childrenVisible?"fa-minus":"fa-plus";
+			};
+        });
+        </script>
+		<style>
+        .fa{
+            color: #f1af5b;
+            cursor: pointer;
+            }
+            .btnt_div{
+                margin-left: 1%;
+            }
+            
+		</style>
+    </head>
+    <body>
+        <div ng-app="myApp">
+            <div ng-controller="myAppController">
+                <script type="text/ng-template" id="tree_item.html">
+                    <tr style="width:100%">
+                        <td><i class="fa fa-plus" ng-class="data.folderClass" ng-click="toggleChildren(data)"></i>&nbsp;&nbsp;<i class="fa fa-folder" ng-class="data.folderClass" ng-click="toggleChildren(data)"></i>
+                            {{data.name}}
+                            <div id="expanded-data" ng-if="data.childrenVisible" class="btnt_div">
+                                
+                                        <div ng-repeat="data in data.termsrelation" ng-include="'sub_tree_item.html'"></div>
+                                
+                            </div>
+                        </td>
+                    </tr>
+                </script>
+                <script type="text/ng-template" id="sub_tree_item.html">
+                    <tr style="width:100%">
+                        <td><i class="fa fa-plus" ng-class="data.folderClass" ng-click="toggleChildren(data)"></i>&nbsp;&nbsp;<i class="fa fa-plus fa-folder" ng-class="data.folderClass" ng-click="toggleChildren(data)"></i>
+                            {{data.rel}}
+                            <div id="expanded-data" ng-if="data.childrenVisible" class="btnt_div">
+                                
+                                        <div ng-repeat="data in data.terms" ng-include="'l2_item.html'"></div>
+                                
+                            </div>
+                        </td>
+                    </tr>
+                </script>
+                <script type="text/ng-template" id="l2_item.html">
+                    <tr style="width:100%">
+                        <td><i class="fa fa-plus" ng-class="data.folderClass" ng-click="toggleChildren(data)"></i>&nbsp;&nbsp;<i class="fa fa-plus fa-folder" ng-class="data.folderClass" ng-click="toggleChildren(data)"></i>
+                            {{data.name}}
+                            <div id="expanded-data" ng-if="data.childrenVisible" class="btnt_div">
+                                
+                                        <div ng-include="'l3_item.html'" ng-modal="l2data" ng-if="data.nodeid == l2data.id"></div>
+                                
+                            </div>
+                        </td>
+                    </tr>
+                </script>
+                <script type="text/ng-template" id="l3_item.html">
+                    <div ng-repeat="data in l2data.termsrelation" ng-include="'l2_tree_item.html'"></div>
+                </script>
+                <script type="text/ng-template" id="l2_tree_item.html">
+                    <tr style="width:100%">
+                        <td><i class="fa fa-plus" ng-class="data.folderClass" ng-click="toggleChildren(data)"></i>&nbsp;&nbsp;<i class="fa fa-folder" ng-class="data.folderClass" ng-click="toggleChildren(data)"></i>
+                            {{data.rel}}
+                            <div id="expanded-data" ng-if="data.childrenVisible" class="btnt_div">
+                                
+                                        <div ng-repeat="data in data.terms" ng-include="'l2_item.html'"></div>
+                                
+                            </div>
+                        </td>
+                    </tr>
+                </script>
+                <table class="table table-striped">
+
+                    <tbody ng-model="data" ng-include="'tree_item.html'">
+
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </body>
+</html>
